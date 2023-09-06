@@ -1,0 +1,21 @@
+---
+- name: Transfer and execute a script.
+  hosts: DR
+  user: root
+  tasks:
+     - name: Transfer the node_exporter package
+       copy: src=node_exporter-1.6.1.linux-amd64.tar.gz dest=/tmp/
+
+     - name: Transfer the script
+       copy: src=files/node_exporter.sh dest=/tmp/ mode=0777
+
+     - name: Execute the script
+       ansible.builtin.shell: /tmp/node_exporter.sh
+
+     - name: Get Service Status
+       ansible.builtin.systemd:
+         name: "node_exporter"
+       register: node_exporter_status
+
+     - debug:
+         var: node_exporter_status.status.ActiveState

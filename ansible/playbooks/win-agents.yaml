@@ -1,0 +1,22 @@
+---
+- name: Install node_exporter on Windows
+  hosts: windows_servers
+  gather_facts: false
+  tasks:
+    - name: Download node_exporter archive
+      win_get_url:
+        url: "https://github.com/prometheus-community/windows_exporter/releases/download/v0.23.1/windows_exporter-0.23.1-386.msi"
+        dest: C:\Temp\windows_exporter-0.23.1-386.msi
+
+
+    - name: Create node_exporter service
+      win_shell: |
+        msiexec /i C:\Users\Administrator\Downloads\windows_exporter-0.18.1-amd64.msi ENABLED_COLLECTORS="os,service,net,system,logical_disk,cs,cpu" LISTEN_PORT="9182"
+      args:
+        executable: powershell.exe
+      ignore_errors: yes  # Ignore if service already exists
+
+    - name: Start windows_exporter service
+      win_service:
+        name: "windows_exporter"
+        state: started
