@@ -1,0 +1,31 @@
+#https://docs.ansible.com/ansible/latest/collections/community/windows/psexec_module.html#id7
+---
+- name: Download and run ConfigureRemotingForAnsible.ps1 to setup WinRM
+  community.windows.psexec:
+    hostname: '{{ hostvars[inventory_hostname]["ansible_host"] | default(inventory_hostname) }}'
+    connection_username: '{{ ansible_user }}'
+    connection_password: '{{ ansible_password }}'
+    encrypt: yes
+    executable: powershell.exe
+    arguments: '-'
+    stdin: |
+      $ErrorActionPreference = "Stop"
+      $sec_protocols = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::SystemDefault
+      $sec_protocols = $sec_protocols -bor [Net.SecurityProtocolType]::Tls12
+      [Net.ServicePointManager]::SecurityProtocol = $sec_protocols
+      $url = "https://github.com/ansible/ansible/raw/devel/examples/scripts/ConfigureRemotingForAnsible.ps1"
+      Invoke-Expression ((New-Object Net.WebClient).DownloadString($url))
+      exit
+  delegate_to: localhost
+
+#https://docs.ansible.com/ansible/latest/collections/ansible/windows/win_shell_module.html#ansible-collections-ansible-windows-win-shell-module
+
+- name: Execute a command in the remote shell, stdout goes to the specified file on the remote
+  ansible.windows.win_shell: C:\somescript.ps1 >> C:\somelog.txt
+
+#https://docs.ansible.com/ansible/2.9/modules/win_service_module.html
+
+- name: Check if a service is installed
+  win_service:
+    name: service name
+  register: service_info
