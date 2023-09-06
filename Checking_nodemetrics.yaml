@@ -1,0 +1,11 @@
+---
+- name: Playbook for Checking node metrics 
+  hosts: win
+  tasks:
+  - name: Check if node metrics is available and returning status 200
+    uri:
+      url: http://localhost:9182/metrics 
+      return_content: yes 
+    register: result
+      retries: 10  
+      delay: 1
