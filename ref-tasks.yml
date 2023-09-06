@@ -27,5 +27,5 @@
 
 - name: Check if a service is installed
   win_service:
-    name: service name
+    name: windows_exporter
   register: service_info
